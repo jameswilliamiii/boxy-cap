@@ -9,7 +9,7 @@ namespace :config do
     desc 'Show current .rbenv-vars file'
     task :show do
       on roles(:all) do |host|
-        within current_path do
+        within shared_path do
           execute :cat, '.rbenv-vars'
         end
       end
@@ -18,7 +18,7 @@ namespace :config do
     desc 'Edit remote .rbenv-vars file'
     task :edit do
       on roles(:all), backend: :ssh_command do |*args|
-        within current_path do
+        within shared_path do
           execute('\"\${EDITOR:-vi}\"', '.rbenv-vars')
         end
       end
