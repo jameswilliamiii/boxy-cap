@@ -26,14 +26,14 @@ module DatabaseAdapters
       @config = config
       @database_name = database_name
       @backup_file = File.join(backup_dir, "#{database_name}_#{datestamp}.dump")
+      @latest_backup_file = File.join(backup_dir, "#{database_name}_latest.dump")
     end
 
     def backup
       mkdir_p(backup_dir)
       sh backup_command
-      latest_file_name = File.join(backup_dir, "#{database_name}_latest.dump")
-      rm latest_file_name if File.exist?(latest_file_name)
-      safe_ln backup_file, latest_file_name
+      rm latest_backup_file if File.exist?(latest_backup_file)
+      safe_ln backup_file, latest_backup_file
     end
 
     def restore
@@ -60,7 +60,7 @@ module DatabaseAdapters
 
     protected
 
-    attr_reader :config, :database_name, :backup_file
+    attr_reader :config, :database_name, :backup_file, :latest_backup_file
 
     def backup_command
       fail 'Subclass must implement!'
@@ -86,4 +86,3 @@ module DatabaseAdapters
     end
   end
 end
-

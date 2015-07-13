@@ -34,7 +34,7 @@ module DatabaseAdapters
     end
 
     def postgres_restore_command
-      result = "#{postgres_password} pg_restore -d #{database_name} -F c -w #{backup_file}"
+      result = "#{postgres_password} pg_restore -d #{database_name} -F c -w #{latest_backup_file}"
       result += postgres_auth_options
       result + ' -O -c'
     end
@@ -61,4 +61,3 @@ module DatabaseAdapters
     end
   end
 end
-
