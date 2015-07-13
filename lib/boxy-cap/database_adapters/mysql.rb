@@ -23,7 +23,7 @@ module DatabaseAdapters
     end
 
     def mysql_restore_command
-      "mysql #{database_name} #{mysql_auth_options} < #{backup_file}"
+      "mysql #{database_name} #{mysql_auth_options} < #{latest_backup_file}"
     end
 
     def mysql_auth_options
@@ -35,4 +35,3 @@ module DatabaseAdapters
     end
   end
 end
-
