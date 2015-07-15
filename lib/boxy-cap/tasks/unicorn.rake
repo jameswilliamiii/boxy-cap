@@ -1,5 +1,5 @@
 namespace :unicorn do
-  desc 'Restart the unicorn process'
+  desc 'Hot restart the Unicorn process'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
         if test("[ -f #{current_path.join('tmp/pids/unicorn.pid')} ]")
@@ -7,6 +7,13 @@ namespace :unicorn do
         else
           execute :sudo, :monit, "-g #{fetch(:monit_unicorn_name)} restart"
         end
+    end
+  end
+
+  desc 'Force restart the Unicorn process'
+  task :force_restart do
+    on roles(:app) do
+      execute :sudo, :monit, "-g #{fetch(:monit_unicorn_name)} restart"
     end
   end
 
