@@ -181,3 +181,8 @@ And you have way to look to logs `cap production less_log`.
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+
+#### Brought to you by
+
+[![BigBinary logo](http://bigbinary.com/assets/common/logo.png)](http://BigBinary.com)
