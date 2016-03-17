@@ -55,7 +55,7 @@ module DatabaseAdapters
       begin
         ActiveRecord::Base.connection.exec_query(kill_query)
       rescue ActiveRecord::StatementInvalid => ex
-        puts "All connections to #{db_name} were killed successfully!"
+        puts "All connections to #{database_name} were killed successfully!"
         puts "Database message: #{ex.message}"
       end
     end
