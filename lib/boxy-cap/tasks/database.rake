@@ -24,7 +24,8 @@ namespace :db do
       within release_path do
         with rails_env: fetch(:rails_env) do
           execute :rake, 'db:backup'
-          execute :rake, 'db:cleanup', "ROTATE=#{fetch(:keep_releases)}"
+          execute :rake, 'db:cleanup'
+          no_of_days = fetch(:db_dump_retention).to_i
         end
       end
     end

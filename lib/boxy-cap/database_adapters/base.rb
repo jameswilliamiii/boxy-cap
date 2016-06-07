@@ -1,4 +1,16 @@
 require 'rake'
+require 'date'
+require 'fileutils'
+
+module Enumerable
+  def older_than_days(days)
+    now = Date.today
+    each do |file|
+      yield file if (now - File.stat(file).mtime.to_date) > days
+    end
+  end
+end
+
 module DatabaseAdapters
   class Base
     require_relative 'mysql'
@@ -6,7 +18,8 @@ module DatabaseAdapters
     require_relative 'sql_server'
 
     include FileUtils
-
+    include Enumerable
+    
     class << self
       def for(config, database_name)
         case config[:adapter]
@@ -41,16 +54,11 @@ module DatabaseAdapters
     end
 
     def cleanup_old_database_dumps
+      num_of_days=db_retention
+       
       dumps = FileList.new(File.join(backup_dir, '*.dump')).exclude(/_latest.dump$/)
-
-      if keep_versions > 0 && dumps.count >= keep_versions
-        puts "Keep #{keep_versions} dumps"
-        files = (dumps - dumps.last(keep_versions))
-        if files.any?
-          files.each do |f|
-            rm_r f
-          end
-        end
+      Dir.glob(dumps).older_than_days(num_of_days) do |file|
+          FileUtils.rm(file) if File.file?(file)
       end
     end
 
@@ -83,6 +91,10 @@ module DatabaseAdapters
 
     def keep_versions
       @_keep_versions ||= ENV['ROTATE'].to_i
+    end
+    
+    def db_retention
+      @_db_retention ||= ENV['no_of_days'].to_i
     end
   end
 end
