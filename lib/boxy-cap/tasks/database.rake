@@ -42,6 +42,48 @@ namespace :db do
     end
   end
 
+  desc 'Read current server properties for database restore'
+  task :read_server_address_for_db_restore do
+    host = roles(:web).last
+    puts "#{host.user}@#{host.hostname}"
+  end
+
+  desc 'Sync database from production'
+  task :sync do
+    on primary fetch(:migration_role) do
+      raise "This task cannot be run in production" if fetch(:stage).to_s == 'production'
+
+      from_env = ENV['FROM'] || 'production'
+      system "cap #{from_env} db:backup"
+
+      # Read user@hostname of production server to scp database dump
+      from_server_address = `cap #{from_env} db:read_server_address_for_db_restore`.split("\n").last.chomp
+
+      within release_path do
+        with rails_env: fetch(:rails_env) do
+
+          # Take a backup before restoring production database
+          execute :rake, 'db:backup'
+          execute :rake, 'db:cleanup'
+
+          # Get database backup from production
+          db_back_up_dir = fetch(:deploy_to) + "/shared/db/backups/"
+          source_db_file =  db_back_up_dir + "#{fetch(:application)}_#{from_env}_latest.dump"
+          destination_db_file = db_back_up_dir + "#{fetch(:application)}_#{fetch(:stage)}_latest.dump"
+          execute :scp, "#{from_server_address}:#{source_db_file} #{destination_db_file}"
+
+          # Execute database restore command
+          execute :rake, 'db:restore'
+
+          # Run de-identification task if required
+          if ENV['DEIDENTIFY_TASK']
+            execute :rake, ENV['DEIDENTIFY_TASK']
+          end
+        end
+      end
+    end
+  end
+
   desc 'Download to local machine the latest backup'
   task :dump_download, :env_name do |task, args|
     on primary fetch(:migration_role) do
