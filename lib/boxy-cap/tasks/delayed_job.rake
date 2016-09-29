@@ -21,8 +21,6 @@ namespace :delayed_job do
   end
 end
 
-after 'deploy:cleanup', 'delayed_job:restart'
-
 namespace :load do
   task :defaults do
     set :monit_delayed_job_name, 'delayed_job'
