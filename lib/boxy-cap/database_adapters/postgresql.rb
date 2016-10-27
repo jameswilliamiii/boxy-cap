@@ -49,7 +49,7 @@ module DatabaseAdapters
       kill_query = <<-QUERY
       SELECT pg_terminate_backend(#{pid_column_name})
       FROM pg_stat_activity
-      WHERE datname = '#{database_name}';
+      WHERE datname = '#{database_name}' and pid <> pg_backend_pid() ;
       QUERY
 
       begin
