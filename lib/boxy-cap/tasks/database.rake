@@ -23,9 +23,8 @@ namespace :db do
     on primary fetch(:migration_role) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, 'db:backup'
-          execute :rake, 'db:cleanup'
-          no_of_days = fetch(:db_dump_retention).to_i
+	   execute :rake, 'db:backup'
+	   execute :rake, 'db:cleanup', "NO_OF_DAYS=#{fetch(:db_dump_retention).to_i}"
         end
       end
     end

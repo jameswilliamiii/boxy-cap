@@ -6,7 +6,7 @@ module Enumerable
   def older_than_days(days)
     now = Date.today
     each do |file|
-      yield file if (now - File.stat(file).mtime.to_date) > days
+      yield file if (now - File.stat(file).mtime.to_date) > days.days
     end
   end
 end
@@ -94,7 +94,7 @@ module DatabaseAdapters
     end
     
     def db_retention
-      @_db_retention ||= ENV['no_of_days'].to_i
+      @_db_retention ||= ENV['NO_OF_DAYS'].to_i
     end
   end
 end
