@@ -1,76 +1,75 @@
 require 'securerandom'
+namespace :boxy do
+  namespace :deploy do
+    namespace :check do
+      task :linked_files => 'config/database.yml'
+    end
+  end
 
-namespace :deploy do
-  namespace :check do
-    task :linked_files => 'config/database.yml'
+  namespace :db do
+    desc 'Create Database'
+    task :create do
+      on primary fetch(:migration_role) do
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            execute :rake, 'db:create'
+          end
+        end
+      end
+    end
+
+    desc 'Create backup of Database'
+    task :backup do
+      on primary fetch(:migration_role) do
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            execute :rake, 'db:backup'
+            execute :rake, 'db:cleanup', "NO_OF_DAYS=#{fetch(:db_dump_retention).to_i}"
+          end
+        end
+      end
+    end
+
+    desc 'Restore the latest dump of Database'
+    task :restore do
+      on primary fetch(:migration_role) do
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            execute :rake, 'db:restore'
+          end
+        end
+      end
+    end
+
+    desc 'Download to local machine the latest backup'
+    task :dump_download, :env_name do |task, args|
+      on primary fetch(:migration_role) do
+        within release_path do
+          FileUtils.mkdir_p 'db/backups'
+          env_name = args[:env_name] || fetch(:rails_env).to_s
+          database_config_content = read_remote_database_config
+          database_name = BoxyCap::Recipes::Util.database_name(env_name, database_config_content)
+          backup_file = "db/backups/#{database_name}_latest.dump"
+          download! "#{release_path}/#{backup_file}", backup_file
+        end
+      end
+    end
+
+    desc 'Upload to remote machine the latest backup'
+    task :dump_upload, :env_name do |task, args|
+      on primary fetch(:migration_role) do
+        within release_path do
+          FileUtils.mkdir_p 'db/backups'
+          env_name = args[:env_name] || fetch(:rails_env).to_s
+          database_config_content = read_remote_database_config
+          database_name = BoxyCap::Recipes::Util.database_name(env_name, database_config_content)
+          backup_file = "db/backups/#{database_name}_latest.dump"
+          upload! backup_file, "#{release_path}/#{backup_file}"
+        end
+      end
+    end
   end
 end
-
-namespace :db do
-  desc 'Create Database'
-  task :create do
-    on primary fetch(:migration_role) do
-      within release_path do
-        with rails_env: fetch(:rails_env) do
-          execute :rake, 'db:create'
-        end
-      end
-    end
-  end
-
-  desc 'Create backup of Database'
-  task :backup do
-    on primary fetch(:migration_role) do
-      within release_path do
-        with rails_env: fetch(:rails_env) do
-	   execute :rake, 'db:backup'
-	   execute :rake, 'db:cleanup', "NO_OF_DAYS=#{fetch(:db_dump_retention).to_i}"
-        end
-      end
-    end
-  end
-
-  desc 'Restore the latest dump of Database'
-  task :restore do
-    on primary fetch(:migration_role) do
-      within release_path do
-        with rails_env: fetch(:rails_env) do
-          execute :rake, 'db:restore'
-        end
-      end
-    end
-  end
-
-  desc 'Download to local machine the latest backup'
-  task :dump_download, :env_name do |task, args|
-    on primary fetch(:migration_role) do
-      within release_path do
-        FileUtils.mkdir_p 'db/backups'
-        env_name = args[:env_name] || fetch(:rails_env).to_s
-        database_config_content = read_remote_database_config
-        database_name = BoxyCap::Recipes::Util.database_name(env_name, database_config_content)
-        backup_file = "db/backups/#{database_name}_latest.dump"
-        download! "#{release_path}/#{backup_file}", backup_file
-      end
-    end
-  end
-
-  desc 'Upload to remote machine the latest backup'
-  task :dump_upload, :env_name do |task, args|
-    on primary fetch(:migration_role) do
-      within release_path do
-        FileUtils.mkdir_p 'db/backups'
-        env_name = args[:env_name] || fetch(:rails_env).to_s
-        database_config_content = read_remote_database_config
-        database_name = BoxyCap::Recipes::Util.database_name(env_name, database_config_content)
-        backup_file = "db/backups/#{database_name}_latest.dump"
-        upload! backup_file, "#{release_path}/#{backup_file}"
-      end
-    end
-  end
-
-end
-
 
 remote_file 'config/database.yml' => '/tmp/database.yml', roles: :app
 
