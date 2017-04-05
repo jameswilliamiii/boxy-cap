@@ -43,13 +43,13 @@ Also you need to include rake tasks in your `Rakefile`:
 
 ### Database recipes
 
-- `cap production db:create` - Create Database
-- `cap production db:backup` - Create a Database backup
-- `cap production db:dump_download` - Download remote Database dump to local machine.
-- `cap production db:dump_download[rails_env]` - Download the file that located in `<current>/db/backups/<application>_<rails_env>_latest.dump`
-- `cap production db:dump_upload`- Upload locale Database dump to remote machine 
-- `cap production db:dump_upload[rails_env]` - Upload the file `<current>/db/backups/<application>_<rails_env>_latest.dump` to remote host
-- `cap production db:restore` - Restore latest Database dump
+- `cap production boxy:db:create` - Create Database
+- `cap production boxy:db:backup` - Create a Database backup
+- `cap production boxy:db:dump_download` - Download remote Database dump to local machine.
+- `cap production boxy:db:dump_download[rails_env]` - Download the file that located in `<current>/db/backups/<application>_<rails_env>_latest.dump`
+- `cap production boxy:db:dump_upload`- Upload locale Database dump to remote machine
+- `cap production boxy:db:dump_upload[rails_env]` - Upload the file `<current>/db/backups/<application>_<rails_env>_latest.dump` to remote host
+- `cap production boxy:db:restore` - Restore latest Database dump
 
 
 ### Rails
@@ -100,8 +100,8 @@ You can require this task individually by adding `require 'boxy-cap/rbenv_vars'`
 
 There are the tasks available related to it:
 
-- `cap staging config:vars` - Show current .rbenv-vars file
-- `cap staging config:vars:edit` - Edit remote .rbenv-vars file
+- `cap staging boxy:config:vars` - Show current .rbenv-vars file
+- `cap staging boxy:config:vars:edit` - Edit remote .rbenv-vars file
 
 ### Update VERSION file with build number
 
@@ -131,7 +131,7 @@ And now you have task to download any remote file to local via:
 You will find `download.tar` file in current directory with `config/database.yml`.
 
 To download all share folder use:
-`bundle exec cap staging "files:download[.]"`
+`bundle exec cap staging "boxy:files:download[.]"`
 
 To extract the archive `tar -xvf download.tar -C tmp`
 
