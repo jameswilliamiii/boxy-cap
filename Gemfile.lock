@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    boxy-cap (0.0.19)
+    boxy-cap (0.0.20)
 
 GEM
   remote: https://rubygems.org/
