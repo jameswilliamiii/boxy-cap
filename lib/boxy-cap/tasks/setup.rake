@@ -6,7 +6,7 @@ namespace :boxy do
       invoke 'deploy:check'
       invoke 'deploy:updating'
       invoke 'bundler:install'
-      invoke 'db:create'
+      invoke 'boxy:db:create'
     end
   end
 end
