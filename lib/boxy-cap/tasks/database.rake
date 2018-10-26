@@ -71,7 +71,9 @@ namespace :boxy do
   end
 end
 
-remote_file 'config/database.yml' => '/tmp/database.yml', roles: :app
+on roles(:db) do
+  upload! '/config/database.yml', '/tmp/database.yml'
+end
 
 after 'config/database.yml', :remove_db_tmp_file do
   File.delete '/tmp/database.yml'
